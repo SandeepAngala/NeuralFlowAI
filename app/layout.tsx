@@ -17,6 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://neuralflow-ai.vercel.app"),
   title: "NeuralFlow AI — Intelligent Data Automation Platform",
   description: "Automate enterprise data pipelines with AI. Real-time sync, auto-schema detection, multi-cloud orchestration. Start free.",
   keywords: "AI automation, data pipeline, machine learning, enterprise automation, NeuralFlow",
@@ -24,13 +25,13 @@ export const metadata: Metadata = {
     title: "NeuralFlow AI",
     description: "Next-gen AI data automation platform",
     type: "website",
-    url: "https://neuralflow.ai",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    url: "https://neuralflow-ai.vercel.app",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "NeuralFlow AI Platform" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "NeuralFlow AI",
-    description: "Intelligent Data Automation",
+    description: "Intelligent Data Automation Platform",
   },
 };
 
