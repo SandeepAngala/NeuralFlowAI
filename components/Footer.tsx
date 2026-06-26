@@ -1,7 +1,21 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const handlePlaceholderClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'A' && target.getAttribute('href')?.startsWith('#') && target.getAttribute('href') !== '#features' && target.getAttribute('href') !== '#pricing') {
+        e.preventDefault();
+        alert(`Navigating to ${target.textContent?.trim()}... (Placeholder)`);
+      }
+    };
+    
+    document.querySelector('.footer')?.addEventListener('click', handlePlaceholderClick);
+    return () => document.querySelector('.footer')?.removeEventListener('click', handlePlaceholderClick);
+  }, []);
 
   return (
     <footer className="footer" aria-label="Site Footer">

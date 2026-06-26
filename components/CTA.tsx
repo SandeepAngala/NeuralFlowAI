@@ -14,12 +14,19 @@ export default function CTA() {
           Join 10,000+ engineers using NeuralFlow to orchestrate pipeline intelligence.
         </p>
         
-        <form className="cta-form" onSubmit={(e) => e.preventDefault()}>
+        <form className="cta-form" onSubmit={(e) => {
+          e.preventDefault();
+          const target = e.target as HTMLFormElement;
+          const email = (target.elements.namedItem('cta-email') as HTMLInputElement).value;
+          alert(`Success! Check ${email} for your onboarding link.`);
+          target.reset();
+        }}>
           <label htmlFor="cta-email" className="sr-only">
             Email Address
           </label>
           <input
             id="cta-email"
+            name="cta-email"
             type="email"
             placeholder="Enter your email"
             className="cta-input"

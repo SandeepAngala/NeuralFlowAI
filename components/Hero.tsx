@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 export default function Hero() {
@@ -22,10 +23,16 @@ export default function Hero() {
         </p>
 
         <div className="hero-ctas anim-cta">
-          <a href="#pricing" className="btn btn-primary">
+          <button 
+            onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })} 
+            className="btn btn-primary"
+          >
             Get Started Free
-          </a>
-          <a href="#demo" className="btn btn-ghost">
+          </button>
+          <button 
+            onClick={() => alert("Launching interactive demo...")} 
+            className="btn btn-ghost"
+          >
             <svg
               width="16"
               height="16"
@@ -38,7 +45,7 @@ export default function Hero() {
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
             Watch Demo
-          </a>
+          </button>
         </div>
 
         <div className="stats-bar anim-stats" role="list">

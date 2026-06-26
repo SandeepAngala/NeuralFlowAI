@@ -65,12 +65,12 @@ export default function Header() {
               </a>
             </li>
             <li>
-              <a href="#" className="nav-link" aria-label="Documentation">
+              <a href="#" className="nav-link" aria-label="Documentation" onClick={(e) => { e.preventDefault(); alert("Documentation is coming soon!"); }}>
                 Docs
               </a>
             </li>
             <li>
-              <a href="#" className="nav-link" aria-label="Blog">
+              <a href="#" className="nav-link" aria-label="Blog" onClick={(e) => { e.preventDefault(); alert("Blog is coming soon!"); }}>
                 Blog
               </a>
             </li>

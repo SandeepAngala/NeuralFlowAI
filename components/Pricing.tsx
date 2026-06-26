@@ -164,6 +164,13 @@ export default function Pricing() {
               <button
                 className={`cta-btn ${tier.popular ? 'cta-btn--primary' : 'cta-btn--ghost'}`}
                 aria-label={`${tier.cta} for ${tier.label} plan`}
+                onClick={() => {
+                  if (tier.cta.includes('Contact')) {
+                    alert('Opening sales contact form...');
+                  } else {
+                    document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 {tier.cta}
               </button>
