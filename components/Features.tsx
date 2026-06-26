@@ -1,251 +1,134 @@
-"use client";
+'use client'
+import { useEffect, useRef } from 'react'
 
-import React, { useEffect, useRef, useState } from "react";
+// Active index stored in plain variable — NOT React state
+let activeIndex = -1
 
-interface FeatureItem {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-}
-
-const FEATURES: FeatureItem[] = [
-  {
-    title: "Neural Pipeline Builder",
-    description: "Build, configure, and orchestrate AI data pipelines with an intuitive drag-and-drop workspace.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-        <path d="M12 6v12M6 12h12" />
-      </svg>
-    ),
-  },
-  {
-    title: "Real-Time Data Sync",
-    description: "Streaming sync engine that processes data with sub-30ms latency for real-time analytics.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L20 4" />
-        <path d="M10.5 4.5 13 7l-2.5 2.5" />
-      </svg>
-    ),
-  },
-  {
-    title: "Auto-Schema Detection",
-    description: "Instantly detect, map, and adapt to schema changes dynamically with zero human intervention.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect width="18" height="18" x="3" y="3" rx="2" />
-        <path d="M7 7h10M7 12h10M7 17h10" />
-      </svg>
-    ),
-  },
-  {
-    title: "Multi-Cloud Orchestration",
-    description: "Deploy, run, and scale workloads across AWS, Google Cloud, and Microsoft Azure with ease.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M17.5 19A3.5 3.5 0 0 0 21 15.5c0-2.79-2.54-4.5-5-4.5-.47-.47-1.12-.79-1.84-.79C13.43 7.82 11.23 6 8.5 6 4.91 6 2 8.91 2 12.5a5.5 5.5 0 0 0 5.5 5.5h10z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Predictive Anomaly Alerts",
-    description: "ML-driven detection algorithms alert security and operations teams before anomalies cause downtime.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-        <line x1="12" y1="9" x2="12" y2="13" />
-        <line x1="12" y1="17" x2="12.01" y2="17" />
-      </svg>
-    ),
-  },
-  {
-    title: "Enterprise RBAC",
-    description: "Role-based access controls paired with comprehensive audit trails and data governance protocols.",
-    icon: (
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      </svg>
-    ),
-  },
-];
+const features = [
+  { icon: '⚡', title: 'Neural Pipeline Builder', desc: 'Build, configure, and orchestrate AI data pipelines with an intuitive drag-and-drop workspace.' },
+  { icon: '🔄', title: 'Real-Time Data Sync', desc: 'Streaming sync engine that processes data with sub-30ms latency for real-time analytics.' },
+  { icon: '🗂️', title: 'Auto-Schema Detection', desc: 'Instantly detect, map, and adapt to schema changes dynamically with zero human intervention.' },
+  { icon: '☁️', title: 'Multi-Cloud Orchestration', desc: 'Deploy, run, and scale workloads across AWS, Google Cloud, and Microsoft Azure with ease.' },
+  { icon: '🔔', title: 'Predictive Anomaly Alerts', desc: 'ML-driven detection algorithms alert security and ops teams before failures cascade.' },
+  { icon: '🔐', title: 'Enterprise RBAC', desc: 'Role-based access controls paired with comprehensive audit trails and data governance protocols.' },
+]
 
 export default function Features() {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const prevWidthRef = useRef<number>(0);
+  const gridRef = useRef<HTMLDivElement>(null)
+  const accordionRefs = useRef<(HTMLDivElement | null)[]>([])
 
-  // ResizeObserver to detect breakpoints and synchronize state
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const MOBILE_BREAKPOINT = 768
+    let wasMobile = window.innerWidth < MOBILE_BREAKPOINT
 
-    prevWidthRef.current = container.clientWidth;
+    const observer = new ResizeObserver(() => {
+      const isMobile = window.innerWidth < MOBILE_BREAKPOINT
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const width = entry.contentRect.width;
-        const wasDesktop = prevWidthRef.current >= 768;
-        const isDesktop = width >= 768;
-
-        if (wasDesktop !== isDesktop) {
-          // Breakpoint crossed
-          // State is naturally preserved in activeIndex.
-          // The CSS transitions/classes will automatically apply for activeIndex on the new view.
+      // Crossing desktop → mobile
+      if (!wasMobile && isMobile && activeIndex >= 0) {
+        // Close all accordion panels first
+        accordionRefs.current.forEach((el) => {
+          if (el) {
+            el.style.maxHeight = '0px'
+            el.parentElement?.setAttribute('data-open', 'false')
+          }
+        })
+        // Open the active one
+        const target = accordionRefs.current[activeIndex]
+        if (target) {
+          target.style.maxHeight = target.scrollHeight + 'px'
+          target.parentElement?.setAttribute('data-open', 'true')
         }
-        prevWidthRef.current = width;
       }
-    });
 
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
+      wasMobile = isMobile
+    })
+
+    observer.observe(document.body)
+    return () => observer.disconnect()
+  }, [])
+
+  function handleBentoHover(index: number) {
+    activeIndex = index
+    if (gridRef.current) {
+      gridRef.current.setAttribute('data-active-index', String(index))
+    }
+    // Update card active states
+    gridRef.current?.querySelectorAll('.bento-card').forEach((card, i) => {
+      card.setAttribute('data-active', i === index ? 'true' : 'false')
+    })
+  }
+
+  function handleAccordionToggle(index: number) {
+    activeIndex = index
+    accordionRefs.current.forEach((el, i) => {
+      if (!el) return
+      const isOpen = i === index && el.style.maxHeight !== '0px'
+      el.style.maxHeight = (!isOpen && i === index) ? el.scrollHeight + 'px' : '0px'
+      el.parentElement?.setAttribute('data-open', (!isOpen && i === index) ? 'true' : 'false')
+    })
+  }
 
   return (
-    <section id="features" className="section" ref={containerRef} aria-labelledby="features-title">
-      <span className="section-label">Features</span>
-      <h2 id="features-title" className="section-title">
-        Engineered for Next-Gen Data Ops
-      </h2>
-      <p className="section-subtitle">
-        Everything you need to orchestrate complex data flows with absolute precision.
-      </p>
+    <section id="features" aria-labelledby="features-heading">
+      <div className="features-container">
+        <p className="section-eyebrow">FEATURES</p>
+        <h2 id="features-heading">Engineered for Next-Gen Data Ops</h2>
+        <p className="section-sub">Everything you need to orchestrate complex data flows with absolute precision.</p>
 
-      {/* Bento Grid (Desktop >= 768px) */}
-      <div
-        className="bento-grid"
-        data-active-index={activeIndex}
-        role="region"
-        aria-label="Features Bento Grid"
-      >
-        {FEATURES.map((feature, idx) => (
-          <article
-            key={idx}
-            className="bento-card"
-            data-active={activeIndex === idx}
-            onMouseEnter={() => setActiveIndex(idx)}
-          >
-            <div className="bento-icon" aria-hidden="true">
-              {feature.icon}
-            </div>
-            <h3>{feature.title}</h3>
-            <p>{feature.description}</p>
-          </article>
-        ))}
-      </div>
+        {/* DESKTOP: Bento Grid */}
+        <div ref={gridRef} className="bento-grid" data-active-index="-1" role="list">
+          {features.map((f, i) => (
+            <article
+              key={i}
+              className={`bento-card ${i === 1 ? 'bento-card--wide' : ''}`}
+              data-active="false"
+              onMouseEnter={() => handleBentoHover(i)}
+              onMouseLeave={() => handleBentoHover(-1)}
+              role="listitem"
+              tabIndex={0}
+              onFocus={() => handleBentoHover(i)}
+              onBlur={() => handleBentoHover(-1)}
+            >
+              <span className="bento-icon" aria-hidden="true">{f.icon}</span>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </article>
+          ))}
+        </div>
 
-      {/* Accordion (Mobile < 768px) */}
-      <div className="accordion" role="region" aria-label="Features Accordion">
-        {FEATURES.map((feature, idx) => {
-          const isActive = activeIndex === idx;
-          return (
+        {/* MOBILE: Accordion */}
+        <div className="accordion-list" role="list">
+          {features.map((f, i) => (
             <div
-              key={idx}
-              className={`accordion-item ${isActive ? "active" : ""}`}
+              key={i}
+              className="accordion-item"
+              data-open="false"
+              role="listitem"
             >
               <button
                 className="accordion-trigger"
-                onClick={() => setActiveIndex(idx)}
-                aria-expanded={isActive}
-                aria-controls={`accordion-content-${idx}`}
-                id={`accordion-trigger-${idx}`}
+                onClick={() => handleAccordionToggle(i)}
+                aria-expanded="false"
+                aria-controls={`accordion-panel-${i}`}
               >
-                <span className="accordion-trigger-left">
-                  <span className="accordion-trigger-icon" aria-hidden="true">
-                    {feature.icon}
-                  </span>
-                  {feature.title}
-                </span>
-                <svg
-                  className="accordion-chevron"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
+                <span>{f.icon} {f.title}</span>
+                <svg className="accordion-icon" aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               </button>
               <div
-                id={`accordion-content-${idx}`}
+                id={`accordion-panel-${i}`}
                 className="accordion-content"
-                role="region"
-                aria-labelledby={`accordion-trigger-${idx}`}
+                ref={el => { accordionRefs.current[i] = el }}
+                style={{ maxHeight: '0px', overflow: 'hidden', transition: 'max-height 350ms ease-in-out' }}
               >
-                <div className="accordion-body">
-                  <p>{feature.description}</p>
-                </div>
+                <p className="accordion-body">{f.desc}</p>
               </div>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </section>
-  );
+  )
 }

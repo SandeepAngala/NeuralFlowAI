@@ -8,16 +8,17 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  function smoothScroll(id: string) {
+    setIsMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  }
 
   return (
     <header className={`header anim-nav ${isScrolled ? "scrolled" : ""}`}>
@@ -46,48 +47,57 @@ export default function Header() {
         <nav aria-label="Main navigation">
           <ul className={`nav-links ${isMenuOpen ? "open" : ""}`}>
             <li>
-              <a href="#features" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <a
+                href="#features"
+                className="nav-link"
+                onClick={(e) => { e.preventDefault(); smoothScroll("features"); }}
+              >
                 Features
               </a>
             </li>
             <li>
-              <a href="#pricing" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <a
+                href="#pricing"
+                className="nav-link"
+                onClick={(e) => { e.preventDefault(); smoothScroll("pricing"); }}
+              >
                 Pricing
               </a>
             </li>
             <li>
-              <a href="#docs" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <a href="#" className="nav-link" aria-label="Documentation">
                 Docs
               </a>
             </li>
             <li>
-              <a href="#blog" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              <a href="#" className="nav-link" aria-label="Blog">
                 Blog
               </a>
             </li>
-            <li className="md:hidden">
-              <a
-                href="#pricing"
+            <li className="nav-mobile-cta">
+              <button
                 className="btn btn-primary"
                 style={{ width: "100%", marginTop: "1rem" }}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => smoothScroll("cta")}
               >
                 Start Free Trial
-              </a>
+              </button>
             </li>
           </ul>
         </nav>
 
-        <div className="flex items-center gap-4">
-          <a href="#pricing" className="btn btn-gradient-border hidden md:inline-flex">
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <button
+            className="btn btn-gradient-border nav-desktop-cta"
+            onClick={() => smoothScroll("cta")}
+          >
             Start Free Trial
-          </a>
+          </button>
 
           <button
             className="mobile-toggle"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-expanded={isMenuOpen}
-            aria-controls="navigation-links"
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
           >
             <svg
